@@ -14,20 +14,25 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Java 17
+      - name: Set up Java 17 (required by Android D8 dexer)
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Setup Android SDK & NDK r27
-        uses: android-actions/setup-android@v3
-
-      - name: Install Android Platform 35 & NDK
+      - name: Install Android Platform 35, Build-Tools & NDK r27
         run: |
-          sdkmanager --install "platforms;android-35" "build-tools;35.0.0" "ndk;27.2.12479018"
-          echo "ANDROID_NDK_ROOT=$ANDROID_HOME/ndk/27.2.12479018" >> $GITHUB_ENV
-          echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          yes | "$SDKMANAGER" --licenses > /dev/null || true
+          "$SDKMANAGER" --install "platform-tools" "platforms;android-35" "build-tools;35.0.0" "ndk;27.2.12479018"
+          NDK_PATH="$ANDROID_HOME/ndk/27.2.12479018"
+          TOOLCHAIN_BIN="$NDK_PATH/toolchains/llvm/prebuilt/linux-x86_64/bin"
+          echo "ANDROID_SDK_ROOT=$ANDROID_HOME" >> $GITHUB_ENV
+          echo "ANDROID_NDK_ROOT=$NDK_PATH" >> $GITHUB_ENV
+          echo "ANDROID_NDK_HOME=$NDK_PATH" >> $GITHUB_ENV
+          echo "CC_aarch64_linux_android=$TOOLCHAIN_BIN/aarch64-linux-android26-clang" >> $GITHUB_ENV
+          echo "AR_aarch64_linux_android=$TOOLCHAIN_BIN/llvm-ar" >> $GITHUB_ENV
+          echo "CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER=$TOOLCHAIN_BIN/aarch64-linux-android26-clang" >> $GITHUB_ENV
 
       - name: Install Rust Toolchain (aarch64-linux-android)
         uses: dtolnay/rust-toolchain@stable
@@ -51,5 +56,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: MedPulseStudy-Android-arm64-APK
-          path: "**/target/**/apk/*.apk"
+          path: "/target//apk/*.apk"
           if-no-files-found: error

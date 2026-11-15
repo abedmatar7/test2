@@ -1,0 +1,55 @@
+name: Build MedPulse Android APK (Rust + Slint)
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build-apk:
+    name: Compile aarch64 Android APK & Run Core Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Android SDK & NDK r27
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android Platform 35 & NDK
+        run: |
+          sdkmanager --install "platforms;android-35" "build-tools;35.0.0" "ndk;27.2.12479018"
+          echo "ANDROID_NDK_ROOT=$ANDROID_HOME/ndk/27.2.12479018" >> $GITHUB_ENV
+          echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
+
+      - name: Install Rust Toolchain (aarch64-linux-android)
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-linux-android
+
+      - name: Cache Cargo Build
+        uses: Swatinem/rust-cache@v2
+
+      - name: Install cargo-apk2
+        run: cargo install cargo-apk2
+
+      - name: Run Core Tests & Build arm64 APK
+        run: |
+          if [ -f "medpulse/Cargo.toml" ]; then cd medpulse; fi
+          cargo test -p medpulse-core --verbose
+          cd app-android
+          cargo apk2 build --target aarch64-linux-android --lib
+
+      - name: Upload Ready-to-Install APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: MedPulseStudy-Android-arm64-APK
+          path: "**/target/**/apk/*.apk"
+          if-no-files-found: error

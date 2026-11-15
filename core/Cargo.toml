@@ -1,0 +1,13 @@
+[package]
+name = "medpulse-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Platform-independent core engine for MedPulse offline medical study app (OLED timer, FSRS/SM-2 flashcards, QBank, clinical cases, OSCE, quotes, SQLite storage)"
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+chrono.workspace = true
+thiserror.workspace = true
+rusqlite.workspace = true

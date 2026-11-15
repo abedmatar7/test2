@@ -1,0 +1,29 @@
+{
+  "locale": "en",
+  "entries": {
+    "app.title": "MedPulse Offline Study",
+    "app.subtitle": "Pure-Black OLED Focus & Clinical Mastery",
+    "nav.timer": "Focus & OLED",
+    "nav.flashcards": "Flashcards",
+    "nav.qbank": "Q-Bank",
+    "nav.cases": "Cases & OSCE",
+    "nav.notes": "Feynman Notes",
+    "nav.dashboard": "Dashboard",
+    "timer.preset.25_5": "Pomodoro 25 / 5",
+    "timer.preset.50_10": "Deep Block 50 / 10",
+    "timer.preset.custom": "Custom Block",
+    "timer.start": "Start Focus Session",
+    "timer.ambient.enter": "Enter Pure-Black OLED Ambient Mode",
+    "timer.ambient.tap_hint": "Tap anywhere to reveal controls",
+    "timer.ambient.pause": "Pause",
+    "timer.ambient.resume": "Resume",
+    "timer.ambient.stop": "Finish & Log",
+    "timer.ambient.exit": "Exit Ambient",
+    "timer.aod.disclaimer": "In-app OLED Ambient Mode keeps the display awake at ultra-low luminance with 60s pixel shifting. If the hardware power button turns the screen off, our Android ForegroundService continues timing and triggers an alarm/vibration notification when the block completes.",
+    "motivation.pre_session_header": "Before You Begin",
+    "motivation.favorite_toggle": "Favorite Quote",
+    "motivation.post_session_header": "Why This Matters at the Bedside",
+    "motivation.streak_rest_day_badge": "Rest-Day Grace Protected (1 recovery day/week preserves streak)",
+    "motivation.sleep_reminder": "Consolidation Alert: Slow-wave and REM sleep stabilize today's pathology & clinical schemas."
+  }
+}

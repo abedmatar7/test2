@@ -1,0 +1,83 @@
+[package]
+name = "medpulse-app-android"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Slint UI and Android/Desktop glue for MedPulse offline medical study app"
+build = "build.rs"
+
+[lib]
+name = "medpulse_app"
+crate-type = ["cdylib", "rlib"]
+path = "src/lib.rs"
+
+[[bin]]
+name = "medpulse-desktop"
+path = "src/main_desktop.rs"
+
+[dependencies]
+medpulse-core = { path = "../core" }
+serde.workspace = true
+serde_json.workspace = true
+chrono.workspace = true
+slint.workspace = true
+
+[target.'cfg(target_os = "android")'.dependencies]
+slint = { workspace = true, features = ["backend-android-activity-06"] }
+android-activity = { version = "0.6", features = ["native-activity"] }
+jni = "0.21"
+ndk-context = "0.1"
+
+[build-dependencies]
+slint-build = "1.18"
+
+[package.metadata.android]
+use_aapt2 = true
+package = "dev.medpulse.app"
+apk_name = "MedPulseStudy"
+assets = "../assets"
+java_sources = "android/src/main/java"
+build_targets = ["aarch64-linux-android"]
+
+[package.metadata.android.sdk]
+min_sdk_version = 26
+target_sdk_version = 35
+
+# Strictly offline: NO android.permission.INTERNET is ever requested.
+[[package.metadata.android.uses_permission]]
+name = "android.permission.WAKE_LOCK"
+
+[[package.metadata.android.uses_permission]]
+name = "android.permission.VIBRATE"
+
+[[package.metadata.android.uses_permission]]
+name = "android.permission.FOREGROUND_SERVICE"
+
+[[package.metadata.android.uses_permission]]
+name = "android.permission.FOREGROUND_SERVICE_SPECIAL_USE"
+
+[[package.metadata.android.uses_permission]]
+name = "android.permission.POST_NOTIFICATIONS"
+
+[package.metadata.android.application]
+label = "MedPulse Offline Study"
+theme = "@android:style/Theme.DeviceDefault.NoActionBar"
+extract_native_libs = true
+
+[[package.metadata.android.application.activity]]
+name = "android.app.NativeActivity"
+label = "MedPulse Study"
+config_changes = "orientation|keyboardHidden|screenSize|uiMode"
+exported = true
+
+[[package.metadata.android.application.activity.meta_data]]
+name = "android.app.lib_name"
+value = "medpulse_app"
+
+[[package.metadata.android.application.activity.intent_filter]]
+actions = ["android.intent.action.MAIN"]
+categories = ["android.intent.category.LAUNCHER"]
+
+[[package.metadata.android.application.service]]
+name = "dev.medpulse.app.MedPulseTimerService"
+exported = false

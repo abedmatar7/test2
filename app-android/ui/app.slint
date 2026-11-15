@@ -1,0 +1,902 @@
+import { Button, VerticalBox, HorizontalBox, ScrollView, LineEdit, CheckBox } from "std-widgets.slint";
+
+export global Theme {
+    in-out property <bool> dark-mode: true;
+    in-out property <bool> warm-amber-accent: false;
+
+    // Pure-black #000000 in dark mode for AMOLED power savings; warm off-white in light mode
+    out property <color> bg-primary: dark-mode ? #000000 : #F6F4EE;
+    out property <color> bg-card: dark-mode ? #0C1416 : #FFFFFF;
+    out property <color> bg-elevated: dark-mode ? #132024 : #EAE6DC;
+    out property <color> border-subtle: dark-mode ? #1D3136 : #D6D1C4;
+    out property <color> text-primary: dark-mode ? #E6F1F2 : #142426;
+    out property <color> text-secondary: dark-mode ? #8AA6A9 : #4A6366;
+    out property <color> accent-teal: #2A8B82;
+    out property <color> accent-mint: #52B788;
+    out property <color> accent-amber: #B8863B;
+    out property <color> ambient-dim-stroke: warm-amber-accent ? #8C6428 : #23736B;
+    out property <color> ambient-dim-text: warm-amber-accent ? #7A5722 : #1E635C;
+}
+
+export struct PlanCardUi {
+    title: string,
+    activity-type: string,
+    minutes: int,
+    rationale: string,
+}
+
+export struct HeatmapRowUi {
+    specialty: string,
+    topic: string,
+    accuracy-label: string,
+    lapses: int,
+    severity: int, // 0=good, 1=warn, 2=weak
+}
+
+export struct ChecklistItemUi {
+    index: int,
+    text: string,
+    critical: bool,
+    checked: bool,
+}
+
+export component AppWindow inherits Window {
+    title: "MedPulse Offline Medical Study";
+    preferred-width: 412px;
+    preferred-height: 892px;
+    background: Theme.bg-primary;
+
+    // Navigation & Mode State
+    in-out property <int> active-tab: 0; // 0=Focus, 1=Flashcards, 2=QBank, 3=Cases/OSCE, 4=Notes, 5=Dashboard
+    in-out property <bool> in-ambient-oled-mode: false;
+    in-out property <bool> show-pre-session-quote-modal: false;
+    in-out property <bool> show-post-session-outcome-modal: false;
+
+    // Timer & OLED Ambient State
+    in-out property <string> selected-specialty-name: "Pathology";
+    in-out property <string> selected-topic-name: "Hematopathology & Lymphomas";
+    in-out property <string> timer-preset-label: "25 / 5 Pomodoro";
+    in-out property <string> countdown-text: "25:00";
+    in-out property <bool> timer-running: false;
+    in-out property <bool> ambient-controls-visible: false;
+    in-out property <float> burn-in-shift-x: 0.0;
+    in-out property <float> burn-in-shift-y: 0.0;
+    in-out property <float> anatomical-icon-opacity: 0.45;
+    in-out property <string> anatomical-organ-name: "Heart";
+    in-out property <string> anatomical-organ-fact: "Heart: ~100,000 beats per day pumping ~7,200 L of blood";
+    in-out property <image> anatomical-organ-svg: @image-url("../../assets/icons/heart.svg");
+
+    // Quote & Outcome State
+    in-out property <string> current-quote-text: "Listen to your patient; he is telling you the diagnosis.";
+    in-out property <string> current-quote-author: "William Osler";
+    in-out property <string> current-quote-source: "Address to Medical Students (Verified Attribution)";
+    in-out property <string> current-quote-theme: "Patients First";
+    in-out property <bool> current-quote-favorited: false;
+    in-out property <string> quotes-cycle-progress: "1 / 160 in non-repeating cycle";
+    in-out property <string> post-session-why-matters: "Distinguishing Acute Promyelocytic Leukemia (t(15;17)) on smear triggers immediate ATRA therapy before fatal DIC develops.";
+    in-out property <string> active-study-tip: "Retrieval Practice: Reconstruct the diagnostic cascade from memory before checking Robbins.";
+    in-out property <string> active-break-booster: "20-20-20 Ciliary Reset: Look 20 feet away for 20 seconds to relax accommodation.";
+
+    // Smart Daily Plan & Implementation Intention
+    in-out property <[PlanCardUi]> daily-plan: [
+        { title: "Clear 6 Due Active-Recall & Cloze Cards", activity-type: "Due Flashcards", minutes: 15, rationale: "Reviewing at ~90% retrievability doubles FSRS stability." },
+        { title: "Targeted Vignette Drill: Glomerular Pathology (50% acc)", activity-type: "Weak-Topic Remediation", minutes: 25, rationale: "High-yield discriminator: linear vs. granular vs. pauci-immune IF." },
+        { title: "Pathology: Hematopathology & Lymphomas", activity-type: "Interleaved Block A (Mechanism)", minutes: 25, rationale: "Distinguishing APL t(15;17) prevents fatal DIC hemorrhage." },
+        { title: "Cardiology: Acute Coronary Syndromes & ECG", activity-type: "Interleaved Block B (Bedside)", minutes: 25, rationale: "Identifying RV infarction in inferior STEMI prevents nitrate-induced collapse." }
+    ];
+    in-out property <string> intention-statement: "I will study Glomerular Pathology at 19:30 at my desk with water ready.";
+
+    // Flashcards State
+    in-out property <string> card-specialty-badge: "Pathology • Hematopathology (Image / Histology)";
+    in-out property <string> card-front-text: "Identify the binucleate cell with prominent eosinophilic 'owl-eye' nucleoli shown in this lymph node biopsy schematic, and state its classic immunophenotype.";
+    in-out property <string> card-back-text: "Reed-Sternberg cell — Classic Hodgkin Lymphoma; CD15+ and CD30+ (typically CD20- and CD45-).";
+    in-out property <string> card-pearl-text: "Nodular sclerosis subtype features lacunar cells and broad birefringent collagen bands.";
+    in-out property <bool> card-answer-revealed: false;
+    in-out property <bool> card-has-image: true;
+    in-out property <image> card-image: @image-url("../../assets/cards/histology_reed_sternberg.svg");
+    in-out property <string> card-fsrs-meta: "FSRS-4.5 • Stability: 3.1d • Difficulty: 5.0";
+
+    // Q-Bank State
+    in-out property <string> qbank-stem: "A 24-year-old man presents with 3 days of hemoptysis and dark, cola-colored urine. Serum creatinine rose from 0.9 to 3.8 mg/dL. Urinalysis shows dysmorphic RBCs and RBC casts. Renal biopsy shows cellular crescents in 80% of glomeruli.";
+    in-out property <string> qbank-lead-in: "Which immunofluorescence finding is most likely present on this patient's renal biopsy?";
+    in-out property <[string]> qbank-options: [
+        "A. Linear IgG and C3 deposition along the glomerular basement membrane",
+        "B. Subepithelial 'hump-like' granular IgG and C3 deposits",
+        "C. Mesangial IgA immune complex deposition",
+        "D. Subendothelial 'wire-loop' IgG, IgM, IgA, and C1q deposits"
+    ];
+    in-out property <int> qbank-selected-index: -1;
+    in-out property <bool> qbank-explanation-visible: false;
+    in-out property <string> qbank-explanation: "Goodpasture syndrome (anti-GBM disease) targets the alpha-3 chain of type IV collagen in GBM and alveolar basement membranes, producing smooth linear IgG immunofluorescence.";
+
+    // Clinical Case & OSCE State
+    in-out property <string> case-title: "Case 1: Pulmonary-Renal Crisis in a 26-Year-Old";
+    in-out property <int> case-current-step: 1;
+    in-out property <string> case-stage-heading: "Stage 1 of 4: Chief Complaint & Triage Vitals";
+    in-out property <string> case-findings: "BP 164/98 mmHg, HR 104/min, SpO2 90% RA. Hemoptysis (~30 mL bright red blood) and smoky brown urine for 4 days.";
+    in-out property <string> case-prompt: "Formulate your initial differential for combined alveolar hemorrhage + acute nephritic syndrome before revealing Stage 2.";
+    in-out property <string> osce-title: "OSCE Station 1: Acute Chest Pain History (8:00)";
+    in-out property <string> osce-timer-text: "08:00";
+    in-out property <[ChecklistItemUi]> osce-checklist: [
+        { index: 0, text: "Confirms identity & assesses immediate hemodynamic stability", critical: true, checked: true },
+        { index: 1, text: "Characterizes pain via OPQRST (Onset, Provocation, Quality, Radiation, Severity, Time)", critical: true, checked: true },
+        { index: 2, text: "Screens for aortic dissection red flags (interscapular tearing pain, pulse deficit)", critical: true, checked: false },
+        { index: 3, text: "Screens for pulmonary embolism risk factors (immobilization, DVT signs, hemoptysis)", critical: false, checked: false },
+        { index: 4, text: "Checks PDE-5 inhibitor use before nitrate administration", critical: true, checked: false }
+    ];
+
+    // Feynman Notes State
+    in-out property <string> feynman-topic-title: "Pathology • Glomerular Crescent Formation";
+    in-out property <string> feynman-plain-text: "When the kidney's tiny blood filters (glomeruli) rupture from severe inflammation, clotting protein (fibrin) leaks into the surrounding capsule. The capsule's lining cells multiply rapidly to wall off the leak, forming a half-moon 'crescent' that squeezes the filter shut within days.";
+    in-out property <string> feynman-mnemonic-text: "RPGN IF Patterns: '1 Line, 2 Bumps, 3 Nothing' -> Type I Linear (Anti-GBM), Type II Granular/Bumpy (Immune Complex), Type III Pauci-immune/Negative (ANCA).";
+
+    // Dashboard State
+    in-out property <int> streak-days: 14;
+    in-out property <string> exam-countdown-text: "61 Days Until Pathology & Clinical Boards";
+    in-out property <int> weekly-minutes-done: 425;
+    in-out property <int> weekly-minutes-goal: 600;
+    in-out property <string> retention-rate-text: "91.4% FSRS Retention";
+    in-out property <[HeatmapRowUi]> weak-topics: [
+        { specialty: "Pathology", topic: "Glomerular & Renal Pathology", accuracy-label: "50% Acc", lapses: 3, severity: 2 },
+        { specialty: "Cardiology", topic: "Acute Coronary Syndromes & ECG", accuracy-label: "67% Acc", lapses: 1, severity: 1 },
+        { specialty: "Pathology", topic: "Hematopathology & Lymphomas", accuracy-label: "92% Acc", lapses: 0, severity: 0 }
+    ];
+    in-out property <string> backup-status-text: "SQLite offline store synced • 0 network permissions";
+
+    // Callbacks into Rust
+    callback cycle-specialty();
+    callback cycle-timer-preset();
+    callback request-start-session();
+    callback confirm-pre-session-quote-and-enter-oled();
+    callback toggle-favorite-quote();
+    callback ambient-screen-tapped();
+    callback toggle-pause-timer();
+    callback finish-session-early();
+    callback close-post-session-modal();
+    callback reveal-flashcard-answer();
+    callback grade-flashcard(int); // 1=Again, 2=Hard, 3=Good, 4=Easy
+    callback select-qbank-option(int);
+    callback advance-clinical-case-step();
+    callback toggle-osce-item(int);
+    callback save-feynman-note(string, string);
+    callback export-json-backup();
+
+    // =========================================================================
+    // 1. PURE-BLACK (#000000) OLED AMBIENT PANEL (Full-screen overlay)
+    // =========================================================================
+    if in-ambient-oled-mode : Rectangle {
+        width: 100%;
+        height: 100%;
+        background: #000000; // True 0,0,0 RGB turns off AMOLED pixels completely
+
+        TouchArea {
+            width: 100%;
+            height: 100%;
+            clicked => { root.ambient-screen-tapped(); }
+        }
+
+        // Burn-in protected floating container (shifts +/-6px every 60 seconds)
+        Rectangle {
+            x: (parent.width - self.width) / 2 + root.burn-in-shift-x * 1px;
+            y: (parent.height - self.height) / 2 + root.burn-in-shift-y * 1px;
+            width: 340px;
+            height: 420px;
+            background: transparent;
+
+            VerticalBox {
+                alignment: center;
+                spacing: 18px;
+
+                // Rotating SVG Anatomical Structure Icon (crossfades every 5 minutes)
+                Rectangle {
+                    height: 110px;
+                    background: transparent;
+                    Image {
+                        width: 88px;
+                        height: 88px;
+                        source: root.anatomical-organ-svg;
+                        colorize: Theme.ambient-dim-stroke;
+                        opacity: root.anatomical-icon-opacity;
+                    }
+                }
+
+                // Ultra-thin, low-luminance countdown display
+                Text {
+                    text: root.countdown-text;
+                    font-size: 68px;
+                    font-weight: 200;
+                    color: Theme.ambient-dim-stroke;
+                    horizontal-alignment: center;
+                }
+
+                // Anatomical structure name + 1-line physiological/pathological fact
+                Text {
+                    text: root.anatomical-organ-name;
+                    font-size: 15px;
+                    font-weight: 500;
+                    color: Theme.ambient-dim-text;
+                    horizontal-alignment: center;
+                }
+
+                Text {
+                    text: root.anatomical-organ-fact;
+                    font-size: 12px;
+                    color: Theme.ambient-dim-text;
+                    opacity: 0.85;
+                    horizontal-alignment: center;
+                    wrap: word-wrap;
+                }
+
+                // Subtle tap-revealed control bar (auto-hides after 4s)
+                if root.ambient-controls-visible : Rectangle {
+                    height: 54px;
+                    border-radius: 14px;
+                    background: #080E10;
+                    border-width: 1px;
+                    border-color: Theme.ambient-dim-text;
+
+                    HorizontalBox {
+                        alignment: center;
+                        spacing: 10px;
+                        Button {
+                            text: root.timer-running ? "Pause" : "Resume";
+                            clicked => { root.toggle-pause-timer(); }
+                        }
+                        Button {
+                            text: Theme.warm-amber-accent ? "Teal OLED" : "Amber OLED";
+                            clicked => { Theme.warm-amber-accent = !Theme.warm-amber-accent; }
+                        }
+                        Button {
+                            text: "Finish";
+                            clicked => { root.finish-session-early(); }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // =========================================================================
+    // 2. MAIN APPLICATION SHELL (When not in full-screen OLED Ambient Mode)
+    // =========================================================================
+    if !in-ambient-oled-mode : VerticalBox {
+        padding: 14px;
+        spacing: 12px;
+
+        // Top Header Bar
+        Rectangle {
+            height: 58px;
+            border-radius: 16px;
+            background: Theme.bg-card;
+            border-width: 1px;
+            border-color: Theme.border-subtle;
+
+            HorizontalBox {
+                padding-left: 14px;
+                padding-right: 14px;
+                alignment: space-between;
+
+                VerticalBox {
+                    alignment: center;
+                    spacing: 2px;
+                    Text {
+                        text: "MedPulse • Offline Study";
+                        font-size: 18px;
+                        font-weight: 700;
+                        color: Theme.text-primary;
+                    }
+                    Text {
+                        text: root.selected-specialty-name + " — " + root.selected-topic-name;
+                        font-size: 12px;
+                        color: Theme.accent-mint;
+                    }
+                }
+
+                Button {
+                    text: Theme.dark-mode ? "OLED Dark" : "Warm Light";
+                    clicked => { Theme.dark-mode = !Theme.dark-mode; }
+                }
+            }
+        }
+
+        // Pre-Session Motivational Quote Modal Overlay
+        if root.show-pre-session-quote-modal : Rectangle {
+            border-radius: 18px;
+            background: Theme.bg-elevated;
+            border-width: 1px;
+            border-color: Theme.accent-teal;
+            padding: 16px;
+
+            VerticalBox {
+                spacing: 10px;
+                Text {
+                    text: "BEFORE YOU BEGIN • " + root.current-quote-theme + " (" + root.quotes-cycle-progress + ")";
+                    font-size: 11px;
+                    font-weight: 700;
+                    color: Theme.accent-mint;
+                }
+                Text {
+                    text: "“" + root.current-quote-text + "”";
+                    font-size: 16px;
+                    font-italic: true;
+                    color: Theme.text-primary;
+                    wrap: word-wrap;
+                }
+                Text {
+                    text: "— " + root.current-quote-author + " • " + root.current-quote-source;
+                    font-size: 12px;
+                    color: Theme.text-secondary;
+                    wrap: word-wrap;
+                }
+                HorizontalBox {
+                    spacing: 10px;
+                    Button {
+                        text: root.current-quote-favorited ? "★ Favorited" : "☆ Favorite Quote";
+                        clicked => { root.toggle-favorite-quote(); }
+                    }
+                    Button {
+                        text: "Enter Pure-Black OLED Focus";
+                        primary: true;
+                        clicked => { root.confirm-pre-session-quote-and-enter-oled(); }
+                    }
+                }
+            }
+        }
+
+        // Post-Session "Why This Matters" Outcome Modal Overlay
+        if root.show-post-session-outcome-modal : Rectangle {
+            border-radius: 18px;
+            background: Theme.bg-elevated;
+            border-width: 1px;
+            border-color: Theme.accent-mint;
+            padding: 16px;
+
+            VerticalBox {
+                spacing: 10px;
+                Text {
+                    text: "SESSION COMPLETE • WHY THIS MATTERS AT THE BEDSIDE";
+                    font-size: 11px;
+                    font-weight: 700;
+                    color: Theme.accent-mint;
+                }
+                Text {
+                    text: root.post-session-why-matters;
+                    font-size: 15px;
+                    font-weight: 600;
+                    color: Theme.text-primary;
+                    wrap: word-wrap;
+                }
+                Text {
+                    text: "Micro-Break Booster: " + root.active-break-booster;
+                    font-size: 13px;
+                    color: Theme.text-secondary;
+                    wrap: word-wrap;
+                }
+                Button {
+                    text: "Log Session & Start Recovery Break";
+                    primary: true;
+                    clicked => { root.close-post-session-modal(); }
+                }
+            }
+        }
+
+        // Main Scrollable Tab Content Area
+        ScrollView {
+            vertical-stretch: 1;
+
+            VerticalBox {
+                spacing: 12px;
+
+                // TAB 0: FOCUS TIMER & SMART DAILY PLAN
+                if root.active-tab == 0 : VerticalBox {
+                    spacing: 12px;
+
+                    // Timer Card
+                    Rectangle {
+                        border-radius: 18px;
+                        background: Theme.bg-card;
+                        border-width: 1px;
+                        border-color: Theme.border-subtle;
+                        padding: 16px;
+
+                        VerticalBox {
+                            spacing: 10px;
+                            HorizontalBox {
+                                alignment: space-between;
+                                Button {
+                                    text: "Specialty: " + root.selected-specialty-name;
+                                    clicked => { root.cycle-specialty(); }
+                                }
+                                Button {
+                                    text: root.timer-preset-label;
+                                    clicked => { root.cycle-timer-preset(); }
+                                }
+                            }
+
+                            Text {
+                                text: root.countdown-text;
+                                font-size: 52px;
+                                font-weight: 700;
+                                color: Theme.accent-mint;
+                                horizontal-alignment: center;
+                            }
+
+                            Button {
+                                text: "Start Session (Quote -> OLED Ambient Panel)";
+                                primary: true;
+                                clicked => { root.request-start-session(); }
+                            }
+
+                            Text {
+                                text: "OLED Burn-in Guard: 60s pixel shift (±6px) + 5-min anatomical SVG crossfade + Android ForegroundService wake-lock fallback.";
+                                font-size: 11px;
+                                color: Theme.text-secondary;
+                                wrap: word-wrap;
+                            }
+                        }
+                    }
+
+                    // Implementation Intention Card
+                    Rectangle {
+                        border-radius: 16px;
+                        background: Theme.bg-card;
+                        border-width: 1px;
+                        border-color: Theme.border-subtle;
+                        padding: 12px;
+
+                        VerticalBox {
+                            spacing: 6px;
+                            Text {
+                                text: "IMPLEMENTATION INTENTION COMMITMENT";
+                                font-size: 11px;
+                                font-weight: 700;
+                                color: Theme.accent-teal;
+                            }
+                            Text {
+                                text: root.intention-statement;
+                                font-size: 13px;
+                                color: Theme.text-primary;
+                                wrap: word-wrap;
+                            }
+                            Text {
+                                text: root.active-study-tip;
+                                font-size: 12px;
+                                color: Theme.text-secondary;
+                                wrap: word-wrap;
+                            }
+                        }
+                    }
+
+                    // Smart Interleaved Daily Plan
+                    Text {
+                        text: "Smart Daily Plan (Due SRS + Weak Topics + Interleaved Subjects)";
+                        font-size: 14px;
+                        font-weight: 700;
+                        color: Theme.text-primary;
+                    }
+
+                    for item in root.daily-plan : Rectangle {
+                        border-radius: 14px;
+                        background: Theme.bg-card;
+                        border-width: 1px;
+                        border-color: Theme.border-subtle;
+                        padding: 12px;
+
+                        VerticalBox {
+                            spacing: 4px;
+                            HorizontalBox {
+                                alignment: space-between;
+                                Text {
+                                    text: item.activity-type;
+                                    font-size: 11px;
+                                    font-weight: 700;
+                                    color: Theme.accent-mint;
+                                }
+                                Text {
+                                    text: item.minutes + " min";
+                                    font-size: 11px;
+                                    color: Theme.text-secondary;
+                                }
+                            }
+                            Text {
+                                text: item.title;
+                                font-size: 14px;
+                                font-weight: 600;
+                                color: Theme.text-primary;
+                                wrap: word-wrap;
+                            }
+                            Text {
+                                text: item.rationale;
+                                font-size: 12px;
+                                color: Theme.text-secondary;
+                                wrap: word-wrap;
+                            }
+                        }
+                    }
+                }
+
+                // TAB 1: SPACED-REPETITION FLASHCARDS (FSRS-4.5 / SM-2 + Cloze + SVG Images)
+                if root.active-tab == 1 : VerticalBox {
+                    spacing: 12px;
+                    Rectangle {
+                        border-radius: 18px;
+                        background: Theme.bg-card;
+                        border-width: 1px;
+                        border-color: Theme.border-subtle;
+                        padding: 16px;
+
+                        VerticalBox {
+                            spacing: 12px;
+                            HorizontalBox {
+                                alignment: space-between;
+                                Text {
+                                    text: root.card-specialty-badge;
+                                    font-size: 12px;
+                                    font-weight: 700;
+                                    color: Theme.accent-mint;
+                                }
+                                Text {
+                                    text: root.card-fsrs-meta;
+                                    font-size: 11px;
+                                    color: Theme.text-secondary;
+                                }
+                            }
+
+                            if root.card-has-image : Image {
+                                width: 100%;
+                                height: 130px;
+                                source: root.card-image;
+                            }
+
+                            Text {
+                                text: root.card-front-text;
+                                font-size: 16px;
+                                font-weight: 600;
+                                color: Theme.text-primary;
+                                wrap: word-wrap;
+                            }
+
+                            if !root.card-answer-revealed : Button {
+                                text: "Reveal Active-Recall Answer";
+                                primary: true;
+                                clicked => { root.reveal-flashcard-answer(); }
+                            }
+
+                            if root.card-answer-revealed : VerticalBox {
+                                spacing: 10px;
+                                Rectangle {
+                                    border-radius: 12px;
+                                    background: Theme.bg-elevated;
+                                    padding: 12px;
+                                    VerticalBox {
+                                        spacing: 6px;
+                                        Text {
+                                            text: root.card-back-text;
+                                            font-size: 15px;
+                                            font-weight: 600;
+                                            color: Theme.accent-mint;
+                                            wrap: word-wrap;
+                                        }
+                                        Text {
+                                            text: "Clinical Pearl: " + root.card-pearl-text;
+                                            font-size: 12px;
+                                            color: Theme.text-secondary;
+                                            wrap: word-wrap;
+                                        }
+                                    }
+                                }
+                                HorizontalBox {
+                                    spacing: 8px;
+                                    Button { text: "Again"; clicked => { root.grade-flashcard(1); } }
+                                    Button { text: "Hard"; clicked => { root.grade-flashcard(2); } }
+                                    Button { text: "Good"; primary: true; clicked => { root.grade-flashcard(3); } }
+                                    Button { text: "Easy"; clicked => { root.grade-flashcard(4); } }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // TAB 2: CLINICAL VIGNETTE QUESTION BANK
+                if root.active-tab == 2 : VerticalBox {
+                    spacing: 12px;
+                    Rectangle {
+                        border-radius: 18px;
+                        background: Theme.bg-card;
+                        border-width: 1px;
+                        border-color: Theme.border-subtle;
+                        padding: 16px;
+
+                        VerticalBox {
+                            spacing: 10px;
+                            Text {
+                                text: "BOARD-STYLE CLINICAL VIGNETTE";
+                                font-size: 11px;
+                                font-weight: 700;
+                                color: Theme.accent-mint;
+                            }
+                            Text {
+                                text: root.qbank-stem;
+                                font-size: 14px;
+                                color: Theme.text-primary;
+                                wrap: word-wrap;
+                            }
+                            Text {
+                                text: root.qbank-lead-in;
+                                font-size: 14px;
+                                font-weight: 700;
+                                color: Theme.text-primary;
+                                wrap: word-wrap;
+                            }
+
+                            for opt[idx] in root.qbank-options : Button {
+                                text: opt;
+                                clicked => { root.select-qbank-option(idx); }
+                            }
+
+                            if root.qbank-explanation-visible : Rectangle {
+                                border-radius: 12px;
+                                background: Theme.bg-elevated;
+                                padding: 12px;
+                                Text {
+                                    text: root.qbank-explanation;
+                                    font-size: 13px;
+                                    color: Theme.accent-mint;
+                                    wrap: word-wrap;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // TAB 3: CLINICAL REASONING CASES & OSCE STATION TRAINER
+                if root.active-tab == 3 : VerticalBox {
+                    spacing: 12px;
+
+                    // Step-by-Step Case Trainer
+                    Rectangle {
+                        border-radius: 18px;
+                        background: Theme.bg-card;
+                        border-width: 1px;
+                        border-color: Theme.border-subtle;
+                        padding: 16px;
+
+                        VerticalBox {
+                            spacing: 8px;
+                            Text {
+                                text: root.case-title;
+                                font-size: 16px;
+                                font-weight: 700;
+                                color: Theme.text-primary;
+                            }
+                            Text {
+                                text: root.case-stage-heading;
+                                font-size: 12px;
+                                font-weight: 700;
+                                color: Theme.accent-mint;
+                            }
+                            Text {
+                                text: root.case-findings;
+                                font-size: 14px;
+                                color: Theme.text-primary;
+                                wrap: word-wrap;
+                            }
+                            Text {
+                                text: root.case-prompt;
+                                font-size: 12px;
+                                font-italic: true;
+                                color: Theme.text-secondary;
+                                wrap: word-wrap;
+                            }
+                            Button {
+                                text: "Reveal Next Clinical Stage ->";
+                                primary: true;
+                                clicked => { root.advance-clinical-case-step(); }
+                            }
+                        }
+                    }
+
+                    // OSCE Timed Checklist
+                    Rectangle {
+                        border-radius: 18px;
+                        background: Theme.bg-card;
+                        border-width: 1px;
+                        border-color: Theme.border-subtle;
+                        padding: 16px;
+
+                        VerticalBox {
+                            spacing: 8px;
+                            HorizontalBox {
+                                alignment: space-between;
+                                Text {
+                                    text: root.osce-title;
+                                    font-size: 15px;
+                                    font-weight: 700;
+                                    color: Theme.text-primary;
+                                }
+                                Text {
+                                    text: root.osce-timer-text;
+                                    font-size: 15px;
+                                    font-weight: 700;
+                                    color: Theme.accent-amber;
+                                }
+                            }
+
+                            for item in root.osce-checklist : HorizontalBox {
+                                spacing: 8px;
+                                CheckBox {
+                                    checked: item.checked;
+                                    text: (item.critical ? "[CRITICAL] " : "") + item.text;
+                                    toggled => { root.toggle-osce-item(item.index); }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // TAB 4: FEYNMAN NOTES & MNEMONIC VAULT
+                if root.active-tab == 4 : VerticalBox {
+                    spacing: 12px;
+                    Rectangle {
+                        border-radius: 18px;
+                        background: Theme.bg-card;
+                        border-width: 1px;
+                        border-color: Theme.border-subtle;
+                        padding: 16px;
+
+                        VerticalBox {
+                            spacing: 10px;
+                            Text {
+                                text: "FEYNMAN BED-SIDE SUMMARY • " + root.feynman-topic-title;
+                                font-size: 12px;
+                                font-weight: 700;
+                                color: Theme.accent-mint;
+                            }
+                            Text {
+                                text: "1. Explain the mechanism simply (as if to a patient or 12-year-old):";
+                                font-size: 12px;
+                                color: Theme.text-secondary;
+                            }
+                            Text {
+                                text: root.feynman-plain-text;
+                                font-size: 14px;
+                                color: Theme.text-primary;
+                                wrap: word-wrap;
+                            }
+                            Text {
+                                text: "2. Personal Diagnostic Key & Mnemonic:";
+                                font-size: 12px;
+                                color: Theme.text-secondary;
+                            }
+                            Text {
+                                text: root.feynman-mnemonic-text;
+                                font-size: 14px;
+                                font-weight: 600;
+                                color: Theme.accent-mint;
+                                wrap: word-wrap;
+                            }
+                            Button {
+                                text: "Save Feynman Summary to Local SQLite";
+                                primary: true;
+                                clicked => { root.save-feynman-note(root.feynman-plain-text, root.feynman-mnemonic-text); }
+                            }
+                        }
+                    }
+                }
+
+                // TAB 5: ANALYTICS DASHBOARD, BOOSTERS & OFFLINE JSON BACKUP
+                if root.active-tab == 5 : VerticalBox {
+                    spacing: 12px;
+
+                    Rectangle {
+                        border-radius: 18px;
+                        background: Theme.bg-card;
+                        border-width: 1px;
+                        border-color: Theme.border-subtle;
+                        padding: 16px;
+
+                        VerticalBox {
+                            spacing: 8px;
+                            HorizontalBox {
+                                alignment: space-between;
+                                Text {
+                                    text: "🔥 " + root.streak-days + "-Day Streak (Rest-Day Grace Active)";
+                                    font-size: 15px;
+                                    font-weight: 700;
+                                    color: Theme.accent-mint;
+                                }
+                                Text {
+                                    text: root.retention-rate-text;
+                                    font-size: 13px;
+                                    color: Theme.text-primary;
+                                }
+                            }
+                            Text {
+                                text: root.exam-countdown-text;
+                                font-size: 14px;
+                                font-weight: 600;
+                                color: Theme.text-primary;
+                            }
+                            Text {
+                                text: "Weekly Goal Progress: " + root.weekly-minutes-done + " / " + root.weekly-minutes-goal + " min (71%)";
+                                font-size: 12px;
+                                color: Theme.text-secondary;
+                            }
+                        }
+                    }
+
+                    Text {
+                        text: "Weak-Topic Heatmap (Q-Bank Accuracy + SRS Lapses)";
+                        font-size: 14px;
+                        font-weight: 700;
+                        color: Theme.text-primary;
+                    }
+
+                    for row in root.weak-topics : Rectangle {
+                        border-radius: 12px;
+                        background: Theme.bg-card;
+                        border-width: 1px;
+                        border-color: row.severity == 2 ? #D9534F : (row.severity == 1 ? Theme.accent-amber : Theme.accent-mint);
+                        padding: 10px;
+
+                        HorizontalBox {
+                            alignment: space-between;
+                            Text {
+                                text: row.specialty + " • " + row.topic;
+                                font-size: 13px;
+                                color: Theme.text-primary;
+                            }
+                            Text {
+                                text: row.accuracy-label + " (" + row.lapses + " lapses)";
+                                font-size: 12px;
+                                font-weight: 700;
+                                color: row.severity == 2 ? #FF6B6B : Theme.accent-mint;
+                            }
+                        }
+                    }
+
+                    Rectangle {
+                        border-radius: 14px;
+                        background: Theme.bg-card;
+                        border-width: 1px;
+                        border-color: Theme.border-subtle;
+                        padding: 12px;
+
+                        VerticalBox {
+                            spacing: 8px;
+                            Text {
+                                text: "Offline Storage & JSON Backup (" + root.backup-status-text + ")";
+                                font-size: 12px;
+                                color: Theme.text-secondary;
+                            }
+                            Button {
+                                text: "Export Full SQLite State to Offline JSON Backup";
+                                clicked => { root.export-json-backup(); }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Thumb-friendly Bottom Navigation Bar
+        Rectangle {
+            height: 60px;
+            border-radius: 18px;
+            background: Theme.bg-card;
+            border-width: 1px;
+            border-color: Theme.border-subtle;
+
+            HorizontalBox {
+                padding: 6px;
+                spacing: 4px;
+                Button { text: "Focus"; primary: root.active-tab == 0; clicked => { root.active-tab = 0; } }
+                Button { text: "Cards"; primary: root.active-tab == 1; clicked => { root.active-tab = 1; } }
+                Button { text: "QBank"; primary: root.active-tab == 2; clicked => { root.active-tab = 2; } }
+                Button { text: "Cases"; primary: root.active-tab == 3; clicked => { root.active-tab = 3; } }
+                Button { text: "Notes"; primary: root.active-tab == 4; clicked => { root.active-tab = 4; } }
+                Button { text: "Stats"; primary: root.active-tab == 5; clicked => { root.active-tab = 5; } }
+            }
+        }
+    }
+}

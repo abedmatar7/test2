@@ -1,0 +1,489 @@
+{
+  "specialties": [
+    {
+      "id": "pathology",
+      "name": "Pathology",
+      "is_custom": false,
+      "category": "Foundational Science",
+      "default_why_it_matters": "Accurate histopathologic & molecular classification directly determines whether a patient receives curative surgery, targeted therapy, or reassurance.",
+      "topics": [
+        {
+          "id": "hematopathology",
+          "specialty_id": "pathology",
+          "name": "Hematopathology & Lymphomas",
+          "why_it_matters": "Distinguishing Acute Promyelocytic Leukemia (t(15;17)) on smear triggers immediate ATRA therapy before fatal DIC develops.",
+          "target_minutes_weekly": 100
+        },
+        {
+          "id": "renal_pathology",
+          "specialty_id": "pathology",
+          "name": "Glomerular & Renal Pathology",
+          "why_it_matters": "Recognizing crescentic RPGN on biopsy initiates urgent plasmapheresis and immunosuppression before irreversible end-stage renal failure.",
+          "target_minutes_weekly": 75
+        },
+        {
+          "id": "neoplasia",
+          "specialty_id": "pathology",
+          "name": "Neoplasia & Tumor Grading",
+          "why_it_matters": "Differentiating dysplasia from submucosal invasion dictates endoscopic resection vs. radical surgical oncology.",
+          "target_minutes_weekly": 75
+        }
+      ]
+    },
+    {
+      "id": "cardiology",
+      "name": "Cardiology",
+      "is_custom": false,
+      "category": "Clinical Clerkship",
+      "default_why_it_matters": "Rapid ECG localization and hemodynamic reasoning preserve viable myocardium and prevent sudden arrhythmic death.",
+      "topics": [
+        {
+          "id": "acs_ecg",
+          "specialty_id": "cardiology",
+          "name": "Acute Coronary Syndromes & ECG Localization",
+          "why_it_matters": "Identifying inferior STEMI with RV involvement prevents catastrophic hypotension from inadvertent nitroglycerin administration.",
+          "target_minutes_weekly": 75
+        },
+        {
+          "id": "valvular_heart",
+          "specialty_id": "cardiology",
+          "name": "Valvular Heart Disease & Murmurs",
+          "why_it_matters": "Detecting symptomatic severe aortic stenosis early enables timely TAVR/SAVR before syncope or sudden cardiac arrest.",
+          "target_minutes_weekly": 50
+        }
+      ]
+    },
+    {
+      "id": "anatomy",
+      "name": "Anatomy",
+      "is_custom": false,
+      "category": "Foundational Science",
+      "default_why_it_matters": "Precise three-dimensional anatomical localization prevents iatrogenic nerve/vessel injury and localizes neurological lesions at the bedside.",
+      "topics": [
+        {
+          "id": "neurovascular_anatomy",
+          "specialty_id": "anatomy",
+          "name": "Circle of Willis & Cranial Nerves",
+          "why_it_matters": "Recognizing a pupil-involving CN III palsy prompts urgent CTA/MRA for a posterior communicating artery aneurysm before subarachnoid rupture.",
+          "target_minutes_weekly": 50
+        }
+      ]
+    },
+    {
+      "id": "physiology",
+      "name": "Physiology",
+      "is_custom": false,
+      "category": "Foundational Science",
+      "default_why_it_matters": "Understanding Starling forces, acid-base balance, and pulmonary mechanics guides safe ventilator and vasopressor titration in the ICU.",
+      "topics": [
+        {
+          "id": "respiratory_mechanics",
+          "specialty_id": "physiology",
+          "name": "V/Q Mismatch & Alveolar Gas Exchange",
+          "why_it_matters": "Calculating the A-a gradient immediately separates hypoventilation from shunt or diffusion impairment in an acutely hypoxic patient.",
+          "target_minutes_weekly": 50
+        }
+      ]
+    },
+    {
+      "id": "pharmacology",
+      "name": "Pharmacology",
+      "is_custom": false,
+      "category": "Foundational Science",
+      "default_why_it_matters": "Mastery of receptor kinetics, CYP450 interactions, and therapeutic windows prevents life-threatening adverse drug events.",
+      "topics": [
+        {
+          "id": "anticoagulants",
+          "specialty_id": "pharmacology",
+          "name": "Anticoagulation & Reversal Agents",
+          "why_it_matters": "Selecting 4-factor PCC + IV vitamin K for life-threatening warfarin hemorrhage reverses coagulopathy within minutes rather than hours.",
+          "target_minutes_weekly": 50
+        }
+      ]
+    },
+    {
+      "id": "microbiology",
+      "name": "Microbiology",
+      "is_custom": false,
+      "category": "Foundational Science",
+      "default_why_it_matters": "Rapid Gram-stain and virulence correlation enables narrow, targeted antimicrobial therapy within the golden hour of sepsis.",
+      "topics": [
+        {
+          "id": "bacteriology_sepsis",
+          "specialty_id": "microbiology",
+          "name": "Encapsulated Bacteria & Endotoxic Shock",
+          "why_it_matters": "Immediate empiric ceftriaxone + vancomycin in suspected meningococcemia or asplenic sepsis prevents fulminant Waterhouse-Friderichsen syndrome.",
+          "target_minutes_weekly": 50
+        }
+      ]
+    },
+    {
+      "id": "biochemistry",
+      "name": "Biochemistry",
+      "is_custom": false,
+      "category": "Foundational Science",
+      "default_why_it_matters": "Recognizing metabolic blocks and vitamin cofactor deficiencies prevents irreversible Wernicke encephalopathy and neonatal metabolic crisis.",
+      "topics": [
+        {
+          "id": "metabolic_emergencies",
+          "specialty_id": "biochemistry",
+          "name": "Thiamine (B1) & Bioenergetics",
+          "why_it_matters": "Administering thiamine before glucose in malnourished patients prevents precipitating acute Wernicke-Korsakoff hemorrhage.",
+          "target_minutes_weekly": 40
+        }
+      ]
+    },
+    {
+      "id": "internal_medicine",
+      "name": "Internal Medicine",
+      "is_custom": false,
+      "category": "Clinical Clerkship",
+      "default_why_it_matters": "Integrative diagnostic reasoning across multi-organ disease prevents diagnostic anchoring and coordinates whole-patient care.",
+      "topics": [
+        {
+          "id": "acid_base_nephrology",
+          "specialty_id": "internal_medicine",
+          "name": "Anion Gap Acidosis & Acute Kidney Injury",
+          "why_it_matters": "Applying Winter's formula uncovers mixed acid-base disorders in septic DKA or salicylate toxicity.",
+          "target_minutes_weekly": 60
+        }
+      ]
+    },
+    {
+      "id": "surgery",
+      "name": "Surgery",
+      "is_custom": false,
+      "category": "Clinical Clerkship",
+      "default_why_it_matters": "Decisive trauma triage (ATLS) and acute abdomen evaluation save lives before hemorrhagic or septic shock becomes irreversible.",
+      "topics": [
+        {
+          "id": "thoracic_trauma",
+          "specialty_id": "surgery",
+          "name": "Tension Pneumothorax & ATLS Primary Survey",
+          "why_it_matters": "Immediate needle/finger thoracostomy before waiting for a chest radiograph restores venous return in obstructive shock.",
+          "target_minutes_weekly": 50
+        }
+      ]
+    },
+    {
+      "id": "pediatrics",
+      "name": "Pediatrics",
+      "is_custom": false,
+      "category": "Clinical Clerkship",
+      "default_why_it_matters": "Recognizing congenital anomalies, Kawasaki disease, and neonatal sepsis early protects lifelong organ and neurodevelopmental potential.",
+      "topics": [
+        {
+          "id": "pediatric_vasculitis",
+          "specialty_id": "pediatrics",
+          "name": "Kawasaki Disease & Coronary Aneurysms",
+          "why_it_matters": "Giving IVIG and aspirin within 10 days of fever onset reduces coronary artery aneurysm risk five-fold.",
+          "target_minutes_weekly": 40
+        }
+      ]
+    },
+    {
+      "id": "obgyn",
+      "name": "OB/GYN",
+      "is_custom": false,
+      "category": "Clinical Clerkship",
+      "default_why_it_matters": "Timely diagnosis of ectopic pregnancy, preeclampsia, and postpartum hemorrhage protects two lives simultaneously.",
+      "topics": [
+        {
+          "id": "hypertensive_pregnancy",
+          "specialty_id": "obgyn",
+          "name": "Preeclampsia & HELLP Syndrome",
+          "why_it_matters": "Initiating magnesium sulfate seizure prophylaxis and timely delivery prevents maternal eclamptic stroke and hepatic rupture.",
+          "target_minutes_weekly": 40
+        }
+      ]
+    },
+    {
+      "id": "psychiatry",
+      "name": "Psychiatry",
+      "is_custom": false,
+      "category": "Clinical Clerkship",
+      "default_why_it_matters": "Differentiating toxidromes (serotonin syndrome vs. neuroleptic malignant syndrome) and assessing suicide risk saves lives in crisis.",
+      "topics": [
+        {
+          "id": "neuropsychiatric_toxidromes",
+          "specialty_id": "psychiatry",
+          "name": "NMS vs. Serotonin Syndrome",
+          "why_it_matters": "Checking for ankle clonus and hyperreflexia distinguishes serotonin syndrome from lead-pipe rigidity in NMS.",
+          "target_minutes_weekly": 40
+        }
+      ]
+    },
+    {
+      "id": "neurology",
+      "name": "Neurology",
+      "is_custom": false,
+      "category": "Clinical Clerkship",
+      "default_why_it_matters": "Rapid stroke localization and status epilepticus termination preserve eloquent cortex and independent function.",
+      "topics": [
+        {
+          "id": "ischemic_stroke",
+          "specialty_id": "neurology",
+          "name": "Large-Vessel Stroke Syndromes",
+          "why_it_matters": "Every 15-minute reduction in door-to-thrombectomy time saves millions of neurons in the ischemic penumbra.",
+          "target_minutes_weekly": 50
+        }
+      ]
+    }
+  ],
+  "flashcards": [
+    {
+      "id": "fc_path_01",
+      "specialty_id": "pathology",
+      "topic_id": "hematopathology",
+      "kind": "image_card",
+      "front": "Identify the binucleate cell with prominent eosinophilic 'owl-eye' nucleoli shown in this lymph node biopsy schematic, and state its classic immunophenotype.",
+      "back": "Reed-Sternberg cell — Classic Hodgkin Lymphoma; CD15+ and CD30+ (typically CD20- and CD45-).",
+      "extra_clinical_pearl": "Nodular sclerosis is the most common subtype and features lacunar variant Reed-Sternberg cells + broad collagen bands.",
+      "image_asset_path": "assets/cards/histology_reed_sternberg.svg",
+      "image_modality": "histology",
+      "due_epoch_secs": 1700000000,
+      "interval_days": 0.0,
+      "ease_factor": 2.5,
+      "stability": 0.0,
+      "difficulty": 5.0,
+      "reps": 0,
+      "lapses": 0
+    },
+    {
+      "id": "fc_path_02",
+      "specialty_id": "pathology",
+      "topic_id": "hematopathology",
+      "kind": "cloze_deletion",
+      "front": "Acute Promyelocytic Leukemia (APL, M3) is driven by the {{c1::t(15;17)::translocation}} fusion producing {{c2::PML-RARA::fusion gene}}, treated urgently with {{c3::All-trans retinoic acid (ATRA) + arsenic trioxide}}.",
+      "back": "Acute Promyelocytic Leukemia (APL, M3) is driven by the t(15;17) fusion producing PML-RARA, treated urgently with All-trans retinoic acid (ATRA) + arsenic trioxide.",
+      "extra_clinical_pearl": "Auer rods release tissue factor-like procoagulants; always monitor fibrinogen and D-dimer for DIC.",
+      "image_asset_path": null,
+      "image_modality": "none",
+      "due_epoch_secs": 1700000000,
+      "interval_days": 0.0,
+      "ease_factor": 2.5,
+      "stability": 0.0,
+      "difficulty": 5.0,
+      "reps": 0,
+      "lapses": 0
+    },
+    {
+      "id": "fc_path_03",
+      "specialty_id": "pathology",
+      "topic_id": "renal_pathology",
+      "kind": "active_recall",
+      "front": "Differentiate the immunofluorescence patterns of the 3 main causes of Rapidly Progressive (Crescentic) Glomerulonephritis (RPGN).",
+      "back": "Type I (Anti-GBM / Goodpasture): Linear IgG along GBM.\nType II (Immune Complex: PSGN, Lupus, IgA): Granular 'lumpy-bumpy' IF.\nType III (Pauci-immune: GPA, MPA, EGPA): Negative / minimal IF with serum ANCA positivity.",
+      "extra_clinical_pearl": "Crescents consist of proliferating parietal epithelial cells, infiltrating macrophages/monocytes, and fibrin in Bowman space.",
+      "image_asset_path": null,
+      "image_modality": "none",
+      "due_epoch_secs": 1700000000,
+      "interval_days": 0.0,
+      "ease_factor": 2.5,
+      "stability": 0.0,
+      "difficulty": 5.5,
+      "reps": 0,
+      "lapses": 0
+    },
+    {
+      "id": "fc_card_01",
+      "specialty_id": "cardiology",
+      "topic_id": "acs_ecg",
+      "kind": "image_card",
+      "front": "This ECG strip demonstrates convex ST-segment elevations in leads II, III, and aVF. Which coronary artery is most commonly occluded, and what anatomical structure is at risk for bradyarrhythmia?",
+      "back": "Right Coronary Artery (RCA, ~85% right-dominant circulation) -> supplies the inferior LV wall and the AV node (via the AV nodal artery), risking heart block.",
+      "extra_clinical_pearl": "Always obtain right-sided precordial leads (V4R) in inferior STEMI and avoid preload-reducing nitrates if RV infarction is present.",
+      "image_asset_path": "assets/cards/ecg_stemi.svg",
+      "image_modality": "ecg",
+      "due_epoch_secs": 1700000000,
+      "interval_days": 0.0,
+      "ease_factor": 2.5,
+      "stability": 0.0,
+      "difficulty": 5.0,
+      "reps": 0,
+      "lapses": 0
+    },
+    {
+      "id": "fc_surg_01",
+      "specialty_id": "surgery",
+      "topic_id": "thoracic_trauma",
+      "kind": "image_card",
+      "front": "This chest radiograph schematic shows absent lung markings on the right, collapsed right lung, and contralateral tracheal/mediastinal shift to the left. What is the immediate next step in management?",
+      "back": "Immediate needle decompression (2nd ICS midclavicular or 4th/5th ICS anterior axillary line) followed by tube thoracostomy.",
+      "extra_clinical_pearl": "Tension pneumothorax is a clinical diagnosis; in real life, never delay decompression to obtain a chest X-ray.",
+      "image_asset_path": "assets/cards/xray_tension_pneumothorax.svg",
+      "image_modality": "x_ray",
+      "due_epoch_secs": 1700000000,
+      "interval_days": 0.0,
+      "ease_factor": 2.5,
+      "stability": 0.0,
+      "difficulty": 4.8,
+      "reps": 0,
+      "lapses": 0
+    },
+    {
+      "id": "fc_anat_01",
+      "specialty_id": "anatomy",
+      "topic_id": "neurovascular_anatomy",
+      "kind": "image_card",
+      "front": "In this Circle of Willis diagram, the highlighted anterior junction is the #1 site of saccular (berry) aneurysms. Name the vessel and the classic visual field defect caused by optic chiasm compression.",
+      "back": "Anterior Communicating Artery (AComm) — compression of the superior aspect of the optic chiasm causes bitemporal (especially inferior bitemporal) quadrantanopia/hemianopia.",
+      "extra_clinical_pearl": "Posterior communicating artery (PComm) aneurysms compress CN III (down-and-out eye + blown mydriatic pupil due to superficial parasympathetic fibers).",
+      "image_asset_path": "assets/cards/anatomy_circle_of_willis.svg",
+      "image_modality": "anatomy_diagram",
+      "due_epoch_secs": 1700000000,
+      "interval_days": 0.0,
+      "ease_factor": 2.5,
+      "stability": 0.0,
+      "difficulty": 5.0,
+      "reps": 0,
+      "lapses": 0
+    }
+  ],
+  "questions": [
+    {
+      "id": "q_path_01",
+      "specialty_id": "pathology",
+      "topic_id": "renal_pathology",
+      "stem": "A 24-year-old man presents with 3 days of hemoptysis and dark, cola-colored urine. Serum creatinine has risen from 0.9 mg/dL to 3.8 mg/dL over 1 week. Urinalysis reveals dysmorphic RBCs and RBC casts. Renal biopsy light microscopy shows obliteration of Bowman space by proliferating parietal cells and fibrin in 80% of glomeruli.",
+      "lead_in": "Which immunofluorescence finding is most likely present on this patient's renal biopsy?",
+      "options": [
+        "Linear IgG and C3 deposition along the glomerular basement membrane",
+        "Subepithelial 'hump-like' granular IgG and C3 deposits",
+        "Mesangial IgA immune complex deposition",
+        "Subendothelial 'wire-loop' IgG, IgM, IgA, and C1q deposits"
+      ],
+      "correct_index": 0,
+      "explanation": "Goodpasture syndrome (anti-GBM disease) presents with pulmonary-renal syndrome (hemoptysis + RPGN) due to autoantibodies against the alpha-3 chain of type IV collagen. Immunofluorescence demonstrates smooth, ribbon-like linear IgG along the GBM.",
+      "distractor_rationales": [
+        "Correct: Anti-GBM antibodies bind uniformly to the intrinsic alpha-3(IV) NC1 domain.",
+        "Subepithelial humps are classic for post-streptococcal glomerulonephritis (granular IF, no hemoptysis).",
+        "Mesangial IgA deposits occur in Berger disease / Henoch-Schönlein purpura.",
+        "Full-house wire-loop subendothelial deposits are characteristic of diffuse proliferative lupus nephritis (Class IV)."
+      ],
+      "attempts": 2,
+      "correct_count": 1
+    },
+    {
+      "id": "q_card_01",
+      "specialty_id": "cardiology",
+      "topic_id": "acs_ecg",
+      "stem": "A 62-year-old woman presents with diaphoresis and substernal chest pressure. Vital signs: BP 88/54 mmHg, HR 52/min, RR 16/min, SpO2 98% on room air. Jugular venous pressure is elevated at 11 cm H2O, and lung fields are completely clear to auscultation. ECG shows 3-mm ST-segment elevation in leads II, III, and aVF.",
+      "lead_in": "Which intervention is most appropriate to restore this patient's blood pressure while preparing for emergent PCI?",
+      "options": [
+        "Intravenous isotonic crystalloid (0.9% NaCl) bolus",
+        "Sublingual nitroglycerin 0.4 mg",
+        "Intravenous furosemide 40 mg",
+        "Intravenous metoprolol 5 mg"
+      ],
+      "correct_index": 0,
+      "explanation": "The triad of hypotension, elevated JVP (Kussmaul sign), and clear lung fields in the setting of an inferior STEMI indicates Right Ventricular Infarction. The ischemic RV relies on preload to passively propel blood through the pulmonary circuit; isotonic IV fluid boluses optimize RV preload.",
+      "distractor_rationales": [
+        "Correct: Isotonic fluid restores RV preload.",
+        "Nitrates cause venodilation and precipitous hypotension in RV infarction.",
+        "Diuretics worsen preload depletion.",
+        "Beta-blockers are contraindicated in bradycardia (HR 52) and acute cardiogenic hypotension."
+      ],
+      "attempts": 3,
+      "correct_count": 2
+    }
+  ],
+  "cases": [
+    {
+      "id": "case_01",
+      "specialty_id": "pathology",
+      "topic_id": "renal_pathology",
+      "title": "Case 1: Pulmonary-Renal Crisis in a 26-Year-Old",
+      "patient_summary": "26M presenting to the ED with progressive dyspnea, blood-streaked sputum, and oliguria.",
+      "steps": [
+        {
+          "step_number": 1,
+          "stage_title": "1. Chief Complaint & Triage Vitals",
+          "clinical_findings": "BP 164/98 mmHg, HR 104/min, RR 24/min, SpO2 90% on room air. Patient coughed up ~30 mL of bright red blood this morning and notes smoky brown urine for 4 days.",
+          "guiding_prompt": "What broad syndrome unites alveolar hemorrhage and acute glomerulonephritis?",
+          "key_differentials_to_consider": [
+            "Anti-GBM Disease (Goodpasture Syndrome)",
+            "Granulomatosis with Polyangiitis (GPA / c-ANCA)",
+            "Microscopic Polyangiitis (MPA / p-ANCA)",
+            "Systemic Lupus Erythematosus (SLE)"
+          ]
+        },
+        {
+          "step_number": 2,
+          "stage_title": "2. Focused History & Physical Exam",
+          "clinical_findings": "No history of chronic sinusitis, nasal crusting, saddle-nose deformity, asthma, malar rash, or arthralgias. Smokes 1 pack/day. Bibasilar inspiratory crackles and 1+ bilateral pitting pedal edema.",
+          "guiding_prompt": "How does absence of upper airway/sinus disease shift the probability between GPA and Anti-GBM disease?",
+          "key_differentials_to_consider": [
+            "Anti-GBM Disease (smoking exposes alveolar basement membrane epitopes)",
+            "Microscopic Polyangiitis"
+          ]
+        },
+        {
+          "step_number": 3,
+          "stage_title": "3. Urinalysis & Serologies",
+          "clinical_findings": "UA: 3+ protein, 4+ blood, dysmorphic acanthocytes, and numerous RBC casts. Serum Cr 4.2 mg/dL (baseline 0.8). C3 and C4 complement levels are normal. Anti-PR3 and Anti-MPO ANCA negative; serum Anti-GBM ELISA strongly positive.",
+          "guiding_prompt": "What specific molecular domain is targeted by these autoantibodies?",
+          "key_differentials_to_consider": [
+            "Non-collagenous 1 (NC1) domain of the alpha-3 chain of Type IV collagen"
+          ]
+        },
+        {
+          "step_number": 4,
+          "stage_title": "4. Renal Biopsy & Definitive Management",
+          "clinical_findings": "Light microscopy: Cellular crescents in 75% of glomeruli. Immunofluorescence: Diffuse, smooth linear IgG along the glomerular capillary loops.",
+          "guiding_prompt": "What dual urgent therapy removes circulating antibodies and halts new synthesis?",
+          "key_differentials_to_consider": [
+            "Emergent Plasmapheresis + High-Dose Corticosteroids + Cyclophosphamide"
+          ]
+        }
+      ],
+      "final_diagnosis": "Goodpasture Syndrome (Anti-Glomerular Basement Membrane Crescentic Glomerulonephritis)",
+      "diagnostic_criteria_pearl": "Type II hypersensitivity reaction against alpha-3(IV) collagen; linear IF distinguishes it from granular immune-complex RPGN and pauci-immune ANCA vasculitis.",
+      "why_it_matters": "Initiating plasmapheresis before dialysis dependency preserves native renal function and prevents fatal alveolar asphyxiation."
+    }
+  ],
+  "osce_stations": [
+    {
+      "id": "osce_01",
+      "specialty_id": "cardiology",
+      "topic_id": "acs_ecg",
+      "title": "OSCE Station 1: Acute Chest Pain History & Risk Stratification",
+      "station_type": "history_taking",
+      "duration_seconds": 480,
+      "candidate_instructions": "You have 8 minutes to obtain a focused history from a 58-year-old patient presenting with acute retrosternal chest discomfort and formulate an immediate bedside differential (ACS, aortic dissection, pulmonary embolism, esophageal rupture).",
+      "patient_script_notes": "Patient describes a heavy squeezing sensation (7/10) radiating to the left jaw and shoulder that began 45 minutes ago while shoveling snow, accompanied by nausea and cold sweat.",
+      "checklist": [
+        {
+          "item_id": "chk_1",
+          "description": "Introduces self, confirms patient identity, and assesses hemodynamic stability immediately",
+          "critical_action": true,
+          "completed": false
+        },
+        {
+          "item_id": "chk_2",
+          "description": "Characterizes pain using OPQRST (Onset, Provocation, Quality, Radiation, Severity, Time)",
+          "critical_action": true,
+          "completed": false
+        },
+        {
+          "item_id": "chk_3",
+          "description": "Screens for aortic dissection red flags (tearing interscapular radiation, pulse/BP differential)",
+          "critical_action": true,
+          "completed": false
+        },
+        {
+          "item_id": "chk_4",
+          "description": "Screens for pulmonary embolism risk factors (recent surgery, immobilization, hemoptysis, unilateral leg swelling)",
+          "critical_action": false,
+          "completed": false
+        },
+        {
+          "item_id": "chk_5",
+          "description": "Asks about PDE-5 inhibitor use (sildenafil/tadalafil) and bleeding contraindications before antiplatelet/nitrate therapy",
+          "critical_action": true,
+          "completed": false
+        }
+      ]
+    }
+  ]
+}

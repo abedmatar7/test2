@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="dev.medpulse.app"
+    android:versionCode="1"
+    android:versionName="0.1.0">
+
+    <uses-sdk android:minSdkVersion="26" android:targetSdkVersion="35" />
+
+    <!--
+      STRICTLY OFFLINE BY DESIGN:
+      android.permission.INTERNET is intentionally omitted so the OS kernel blocks all sockets.
+    -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <application
+        android:label="MedPulse Offline Study"
+        android:hasCode="true"
+        android:allowBackup="false"
+        android:theme="@android:style/Theme.DeviceDefault.NoActionBar">
+
+        <activity
+            android:name="android.app.NativeActivity"
+            android:label="MedPulse Study"
+            android:configChanges="orientation|keyboardHidden|screenSize|uiMode"
+            android:exported="true"
+            android:keepScreenOn="true">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="medpulse_app" />
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Screen-Off-Safe Foreground Service Fallback for Pomodoro/Focus Timer -->
+        <service
+            android:name="dev.medpulse.app.MedPulseTimerService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="offline_medical_study_pomodoro_countdown_timer" />
+        </service>
+    </application>
+</manifest>
